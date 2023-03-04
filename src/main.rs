@@ -9,5 +9,8 @@ fn main() {
     let mut mem: Vec<usize> = vec![0; INIMEMSIZE];
 
     // Load program code
-    let ins: Vec<char> = std::fs::read_to_string(std::env::args().nth(1).unwrap()).unwrap().chars().collect();
+    let ins: Vec<char> = std::fs::read_to_string(std::env::args().nth(1).unwrap())
+        .unwrap()
+        .chars()
+        .collect();
 }
