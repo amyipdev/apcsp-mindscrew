@@ -1,4 +1,6 @@
-const INIMEMSIZE: usize = 64;
+use std::io::Read;
+
+const INIMEMSIZE: usize = 7;
 
 // This code is uglified to comply with
 // APCSP algo requirements. Annoying...
@@ -11,19 +13,19 @@ static mut mp: usize = 0;
 static mut lp: usize = 0;
 // We let the caller declare memory space
 
-unsafe fn msc_run(ins: &Vec<char>, mem: &mut Vec<usize>) -> Result<(), &str> {
+unsafe fn msc_run(ins: &Vec<char>, mem: &mut Vec<usize>) -> Result<(), &'static str> {
     let ilen: usize = ins.len();
     // hacky workaround
-    let stdin: std::io::Stdin = std::io::stdin();
+    let mut stdin: std::io::Stdin = std::io::stdin();
     let mut buf: [u8; 1] = [0; 1];
     while ip != ilen {
         match ins[ip] {
             'x' => x = mem[mp],
             'y' => y = mem[mp],
             'z' => z = mem[mp],
-            'x' => mem[mp] = x,
-            'y' => mem[mp] = y,
-            'z' => mem[mp] = z,
+            'a' => mem[mp] = x,
+            'b' => mem[mp] = y,
+            'c' => mem[mp] = z,
             '+' => mem[mp] += 1,
             '-' => mem[mp] -= 1,
             'p' => mem[mp] = ip,
@@ -42,13 +44,18 @@ unsafe fn msc_run(ins: &Vec<char>, mem: &mut Vec<usize>) -> Result<(), &str> {
                 }
                 mp -= 1;
             }
-            '{' => lp = mp,
+            '{' => lp = ip,
+            '}' => {
+                if mem[mp] != 0 {
+                    ip = lp;
+                } 
+	    },
             'r' => {
                 stdin.read(&mut buf[..]);
-                mem[mp] = buf[0] as char;
+                mem[mp] = buf[0] as usize;
             }
             'w' => {
-                print!("{}", mem[mp] as char);
+                char_handle((mem[mp] as u8) as char);
             }
             // anything else is simply treated as whitespace
             _ => {},
@@ -60,9 +67,9 @@ unsafe fn msc_run(ins: &Vec<char>, mem: &mut Vec<usize>) -> Result<(), &str> {
 
 fn char_handle(c: char) {
     match c {
-        '\u0A' => println!(),
-        '\u0D' => panic!("mindscrew: cr/crlf not supported"),
-        _ => print("{}", c)
+        '\u{0A}' => println!(),
+        '\u{0D}' => panic!("mindscrew: cr/crlf not supported"),
+        _ => print!("{}", c)
     }
 }
 
@@ -82,11 +89,13 @@ fn main() {
         .unwrap()
         .chars()
         .collect();
-
+    println!("{:?}", mem);
+    println!("{:?}", ins);
     unsafe {
-        match run_msc(&ins, &mut mem) {
+        match msc_run(&ins, &mut mem) {
             Ok(()) => {},
-            Err(e) => print!(e),
+            Err(e) => print!("{}", e),
         };
     }
+    println!("{:?}", mem);
 }
