@@ -13,7 +13,9 @@ static mut lp: usize = 0;
 
 unsafe fn msc_run(ins: &Vec<char>, mem: &mut Vec<usize>) -> Result<(), &str> {
     let ilen: usize = ins.len();
-    
+    // hacky workaround
+    let stdin: std::io::Stdin = std::io::stdin();
+    let mut buf: [u8; 1] = [0; 1];
     while ip != ilen {
         match ins[ip] {
             'x' => x = mem[mp],
@@ -36,17 +38,24 @@ unsafe fn msc_run(ins: &Vec<char>, mem: &mut Vec<usize>) -> Result<(), &str> {
             }
             ',' => {
                 if mp == 0 {
-                    panic!("mindscrew: no wrap-around memory support");
+                    return Err("mindscrew: out of bounds error");
                 }
                 mp -= 1;
             }
             '{' => lp = mp,
-            
+            'r' => {
+                stdin.read(&mut buf[..]);
+                mem[mp] = buf[0] as char;
+            }
+            'w' => {
+                print!("{}", mem[mp] as char);
+            }
             // anything else is simply treated as whitespace
             _ => {},
         };
         ip += 1;
     }
+    Ok(())
 }
 
 fn char_handle(c: char) {
