@@ -89,8 +89,6 @@ fn main() {
         .unwrap()
         .chars()
         .collect();
-    println!("{:?}", mem);
-    println!("{:?}", ins);
     unsafe {
         match msc_run(&ins, &mut mem) {
             Ok(()) => {},
