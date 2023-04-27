@@ -1,3 +1,5 @@
+#![allow(non_upper_case_globals)]
+
 use std::io::Read;
 
 const INIMEMSIZE: usize = 7;
@@ -13,6 +15,7 @@ static mut mp: usize = 0;
 static mut lp: usize = 0;
 // We let the caller declare memory space
 
+#[allow(unused_must_use)]
 unsafe fn msc_run(ins: &Vec<char>, mem: &mut Vec<usize>) -> Result<(), &'static str> {
     let ilen: usize = ins.len();
     // hacky workaround
@@ -95,5 +98,4 @@ fn main() {
             Err(e) => print!("{}", e),
         };
     }
-    println!("{:?}", mem);
 }
